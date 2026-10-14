@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="th"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AAPL เทียบเงินบาท – วิเคราะห์แท่งเทียน (เวอร์ชัน GitHub)</title>
+<style>
+:root{--bg:#eef1f4;--card:#fff;--ink:#14222e;--mut:#5d6b78;--up:#0f9d6b;--dn:#d64545;--ac:#1f5fbf;--line:#d5dce3}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 "Noto Sans Thai","Sarabun",system-ui,sans-serif}
+main{max-width:1000px;margin:auto;padding:16px}
+h1{font-size:22px;margin:0 0 4px}h2{font-size:16px;margin:0 0 8px}
+.card{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px}
+.k{display:flex;flex-wrap:wrap;gap:18px;align-items:baseline}.k b{font-size:26px}
+.up{color:var(--up)}.dn{color:var(--dn)}.mut{color:var(--mut);font-size:13px}
+canvas{width:100%;display:block;margin-bottom:8px}
+.verdict,.badge{font-weight:700;padding:8px 14px;border-radius:8px;display:inline-block}.verdict{font-size:20px}
+label{display:block;padding:3px 0}ul{margin:6px 0;padding-left:20px}
+button{font:inherit;padding:6px 12px;border:1px solid var(--ac);background:#fff;color:var(--ac);border-radius:6px;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+table{border-collapse:collapse;width:100%}td{padding:3px 6px;border-bottom:1px solid var(--line)}
+</style></head><body><main>
+<div class="card">
+<h1>Apple (AAPL) เทียบเงินบาท – รายวัน</h1>
+<div class="k"><b id="px">–</b><span id="chg"></span><span class="mut" id="src">กำลังโหลด…</span><button id="rf">รีเฟรช</button></div>
+<div class="mut" style="margin:6px 0">คีย์ Twelve Data (ฟรีที่ twelvedata.com · เก็บในเบราว์เซอร์นี้เท่านั้น ไม่ต้องใส่ในโค้ด): <input id="key" type="password" size="28" aria-label="Twelve Data API key" autocomplete="off"> <button id="sk">บันทึกและดึงข้อมูล</button></div>
+<div class="mut">ราคาทั้งหมดเป็น <b>บาทต่อ 1 หุ้น AAPL (฿)</b> = ราคา USD × USD/THB · RSI เป็นดัชนี 0–100 ไม่มีหน่วย · MACD หน่วยบาท<br>แหล่งข้อมูล: กราฟ TradingView ด้านล่างเป็นวิดเจ็ตทางการ (เรียลไทม์ตามสิทธิ์ข้อมูลของ TradingView) · กราฟวิเคราะห์ใช้ข้อมูลรายวัน AAPL และ USD/THB จาก Twelve Data ด้วยคีย์ของคุณ ถ้ายังไม่ใส่คีย์ จะใช้ข้อมูลฝังถึง 5 ต.ค. 2026</div>
+</div>
+<div class="card"><h2>TradingView เรียลไทม์ – AAPL (USD)</h2><div id="tv1" style="height:460px"><span class="mut">กำลังโหลด TradingView…</span></div></div>
+<div class="card"><h2>TradingView เรียลไทม์ – USD/THB</h2><div id="tv2" style="height:380px"></div></div>
+<div class="card"><h2>กราฟแท่งเทียน (ราคาเป็นบาท)</h2><canvas id="c0"></canvas></div>
+<div class="card"><h2>สรุปและคำแนะนำ</h2><div id="verdict"></div><div id="why"></div></div>
+<div class="card"><h2>1) เส้นแนวโน้ม / สามเหลี่ยม / เส้นขนาน</h2><canvas id="c1"></canvas><div id="t1"></div></div>
+<div class="card"><h2>2) แนวรับ–แนวต้าน + EMA + Volume Profile</h2><canvas id="c2"></canvas><div id="t2"></div></div>
+<div class="card"><h2>3) Fibonacci Retracement + Risk:Reward</h2><canvas id="c3"></canvas><div id="t3"></div></div>
+<div class="card"><h2>4) RSI (14 วัน) + Divergence</h2><canvas id="c4"></canvas><div id="t4"></div></div>
+<div class="card"><h2>5) MACD (12,26,9)</h2><canvas id="c5"></canvas><div id="t5"></div></div>
+<div class="card"><h2>วันเปิดตัวและวันวางจำหน่าย (ประเทศไทย)</h2><div style="overflow-x:auto"><table id="launch"></table></div>
+<p class="mut">ข้อมูลเปิดตัว/พรีออเดอร์/วางจำหน่ายของ iPhone 18 Pro และ Pro Max ตรงกับรายงานของ The Nation Thailand (10 ก.ย. 2026) และ Apple Thailand ส่วนวันของ iPhone Duo (16 และ 23 ต.ค.) อิงรายงาน DropGuys และตารางที่ให้มา ควรเช็กกับ Apple Thailand อีกครั้งก่อนนำเสนอ · ข่าวเปิดตัวมักดันราคาก่อนงานและย่อหลังงาน (buy the rumor, sell the news) ลองเทียบกับกราฟด้านบน</p></div>
+<div class="card"><h2>Fundamental: Demand–Supply</h2>
+<ul>
+<li><b>ยอดปิรามิด – ราคา:</b> เกิดจากแรงซื้อเทียบแรงขาย ณ ขณะนั้น</li>
+<li><b>กลาง – อุปสงค์:</b> ยอดขาย iPhone/Mac/iPad, Services (App Store, iCloud), ความภักดีของลูกค้า</li>
+<li><b>กลาง – อุปทาน:</b> กำลังผลิต ห่วงโซ่อุปทาน (จีน/อินเดีย) ต้นทุนชิป ภาษีนำเข้า และการซื้อหุ้นคืน (Buyback) ที่ลดหุ้นในตลาด</li>
+<li><b>ฐาน – มหภาค:</b> ดอกเบี้ย Fed, ค่าเงินดอลลาร์/บาท, เศรษฐกิจโลก, กฎหมายผูกขาด</li>
+</ul>
+<p>ข่าวเปิดตัวรุ่นใหม่ มักดันราคาก่อนงาน (buy the rumor) และย่อหลังงานถ้ายอดสั่งจองไม่เกินคาด (sell the news) ติ๊กตามข่าวที่คุณเห็น คะแนนจะรวมในสรุป:</p>
+<div id="fund"></div></div>
+<p class="mut">ข้อมูลเพื่อการศึกษา ไม่ใช่คำแนะนำการลงทุน</p>
+</main>
+<script src="https://s3.tradingview.com/tv.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const FUND=[["เปิดตัว iPhone/อุปกรณ์รุ่นใหม่ ยอดสั่งจองดี",1],["รายได้ Services โตต่อเนื่อง",1],["ฟีเจอร์ AI กระตุ้นการอัปเกรด",1],["ซื้อหุ้นคืน/ปันผลต่อเนื่อง",0.5],["ภาษีนำเข้า/ความเสี่ยงห่วงโซ่อุปทานจีน",-1],["คดีผูกขาด/กฎระเบียบ App Store",-1],["ยอดขายจีนลดลง",-1],["ยอดสั่งจองรุ่นใหม่ต่ำกว่าคาด",-1]];
+let fc=new Set([0,1]),D=null;
+$('fund').innerHTML=FUND.map((f,i)=>`<label><input type="checkbox" data-i="${i}" ${fc.has(i)?'checked':''}> ${f[0]} <span class="mut">(${f[1]>0?'+':''}${f[1]})</span></label>`).join('');
+$('fund').onchange=e=>{const i=+e.target.dataset.i;e.target.checked?fc.add(i):fc.delete(i);D&&analyze()};
+
+const LAUNCH=[
+['iPhone 18 Pro','2026-09-10','10 กันยายน 2026','2026-09-12','12 กันยายน 2026 (เวลา 19:00 น.)','2026-09-18','18 กันยายน 2026'],
+['iPhone 18 Pro Max','2026-09-10','10 กันยายน 2026','2026-09-12','12 กันยายน 2026 (เวลา 19:00 น.)','2026-09-18','18 กันยายน 2026'],
+['iPhone Duo (จอพับ)','2026-09-10','10 กันยายน 2026','2026-10-16','16 ตุลาคม 2026 (เวลา 19:00 น.)','2026-10-23','23 ตุลาคม 2026']];
+function renderLaunch(){
+ const today=new Date(Date.now()+7*36e5).toISOString().slice(0,10);
+ const st=iso=>{const d=Math.round((Date.parse(iso)-Date.parse(today))/864e5);return d<0?`<br><span class="mut">✅ ผ่านมาแล้ว ${-d} วัน</span>`:d==0?'<br><span class="mut">📍 วันนี้</span>':`<br><span class="mut">⏳ อีก ${d} วัน</span>`};
+ $('launch').innerHTML='<tr>'+['รุ่นอุปกรณ์','วันเปิดตัว (ไทย)','วันเปิดสั่งซื้อล่วงหน้า (Pre-order)','วันวางจำหน่ายจริง'].map(h=>`<td><b>${h}</b></td>`).join('')+'</tr>'+
+  LAUNCH.map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[2]}${st(r[1])}</td><td>${r[4]}${st(r[3])}</td><td>${r[6]}${st(r[5])}</td></tr>`).join('')}
+renderLaunch();
+// ข้อมูลจริง: วัน(เดือน-วัน) open high low close volume(ล้านหุ้น) เรียงใหม่→เก่า
+const AAPL=`10-05 332.82 336.21 331.65 332.89 34.4
+10-02 333.26 334.54 330.61 333.69 33.3
+10-01 330.00 332.48 325.81 330.32 35.0
+09-30 330.80 339.50 330.14 333.02 49.0
+09-29 336.97 337.09 328.70 329.40 37.7
+09-28 340.37 342.99 338.04 338.40 32.4
+09-25 336.04 341.67 334.53 341.07 29.4
+09-24 336.72 338.91 334.30 335.92 24.2
+09-23 341.08 341.80 335.50 337.02 31.4
+09-22 340.14 345.34 338.75 339.75 39.5
+09-21 335.28 339.64 333.05 338.98 34.4
+09-18 337.91 338.49 332.53 336.13 85.9
+09-17 334.77 338.34 330.18 337.00 36.2
+09-16 332.53 335.48 330.70 332.41 35.6
+09-15 330.14 331.78 328.35 331.34 31.4
+09-14 334.79 335.50 331.34 333.08 37.7
+09-11 327.45 336.22 326.30 332.27 50.2
+09-10 316.67 326.74 316.51 326.57 69.4
+09-09 315.49 319.15 309.90 315.34 64.7
+09-08 317.10 320.70 314.90 316.22 34.9
+09-04 328.31 328.93 317.86 319.97 38.1
+09-03 324.87 330.81 324.11 328.21 37.2
+09-02 326.87 328.40 323.53 324.96 33.8
+09-01 316.98 327.30 314.73 325.13 53.2
+08-31 319.60 321.24 312.80 316.85 41.2
+08-28 316.85 322.37 315.45 319.70 38.6
+08-27 310.55 315.40 309.40 314.58 32.4
+08-26 310.30 315.43 308.80 313.45 34.0
+08-25 310.79 313.59 308.21 309.90 25.9
+08-24 311.47 313.36 309.97 310.34 34.7
+08-21 312.05 312.38 307.01 309.35 46.9
+08-20 317.46 320.28 310.65 311.30 41.0
+08-19 310.14 319.28 309.60 316.83 50.5
+08-18 307.58 311.49 305.74 310.03 53.4
+08-17 306.21 307.66 302.94 305.59 38.2
+08-14 306.00 307.49 304.30 305.93 28.2
+08-13 304.21 306.00 302.05 305.26 40.3
+08-12 305.10 305.66 300.57 302.25 41.7
+08-11 307.75 309.97 302.79 304.91 37.5
+08-10 306.83 308.26 304.61 308.26 44.8
+08-07 311.45 314.81 310.74 313.33 34.4
+08-06 314.34 316.29 309.23 312.41 46.1
+08-05 309.36 311.71 305.67 311.00 49.4
+08-04 302.73 310.42 301.32 309.38 68.0
+08-03 309.58 311.80 302.56 303.42 75.1
+07-31 304.81 310.69 300.00 308.91 132.5
+07-30 333.10 334.75 329.59 333.43 74.8
+07-29 339.73 344.57 337.35 338.19 56.1
+07-28 340.03 342.89 335.60 340.08 51.9
+07-27 334.54 339.57 334.02 336.91 49.6
+07-24 321.79 334.37 321.62 333.02 47.5
+07-23 321.73 323.30 319.35 321.66 40.8`.split('\n').reverse();
+const FXA={'2026-07-23':33.84,'2026-07-24':33.71,'2026-07-27':33.64,'2026-07-28':33.57,'2026-07-29':33.49,'2026-07-30':33.38,'2026-07-31':33.43,'2026-08-07':33.03,'2026-08-14':33.14,'2026-08-18':33.12,'2026-08-19':32.88,'2026-08-20':32.83,'2026-08-21':32.69,'2026-08-25':32.70,'2026-08-31':33.16,
+'2026-09-01':33.31,'2026-09-02':33.2,'2026-09-03':32.93,'2026-09-04':32.925,'2026-09-08':32.91,'2026-09-09':32.92,'2026-09-10':33.125,'2026-09-11':33.095,'2026-09-14':33.205,'2026-09-15':33.28,'2026-09-16':33.365,'2026-09-17':33.29,'2026-09-18':33.325,'2026-09-21':33.25,'2026-09-22':33.11,'2026-09-23':33.435,'2026-09-24':33.5,'2026-09-25':33.405,'2026-09-28':33.595,'2026-09-29':33.556,'2026-09-30':33.526,'2026-10-01':33.66,'2026-10-02':33.59,'2026-10-05':33.68};
+function fxAt(k){if(FXA[k])return FXA[k];const ks=Object.keys(FXA).sort();let a=null,b=null;for(const x of ks){if(x<k)a=x;else{b=x;break}}
+ if(!a)return FXA[b];if(!b)return FXA[a];return FXA[a]+(FXA[b]-FXA[a])*(Date.parse(k)-Date.parse(a))/(Date.parse(b)-Date.parse(a))}
+const day=t=>new Date(t).toISOString().slice(0,10);
+const bar=(k,o,h,l,c,v,fx)=>({t:Date.parse(k+'T12:00:00Z'),o:o*fx,h:h*fx,l:l*fx,c:c*fx,v,usd:c,fx});
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const getKey=()=>{try{return localStorage.getItem('tdkey')||''}catch(e){return ''}};
+async function tdRest(sym,n,key){
+ const r=await fetch(`https://api.twelvedata.com/time_series?symbol=${encodeURIComponent(sym)}&interval=1day&outputsize=${n}&apikey=${encodeURIComponent(key)}`);
+ const j=await r.json();if(j.status==='error'||!j.values)throw {code:j.code,message:j.message||'ข้อมูลตอบกลับผิดปกติ'};return j.values}
+function fromLive(A,F){
+ const m={};F.forEach(r=>m[r.datetime.slice(0,10)]=+r.close);const ks=Object.keys(m).sort();
+ const fxL=k=>{let v=m[ks[0]];for(const x of ks){if(x<=k)v=m[x];else break}return v};
+ return A.slice().reverse().map(r=>{const k=r.datetime.slice(0,10);return bar(k,+r.open,+r.high,+r.low,+r.close,+r.volume||0,m[k]||fxL(k))})}
+function openNote(lastK){try{const now=new Date(),d=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York'}).format(now),h=+new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',hour:'numeric',hour12:false}).format(now)%24;
+ return lastK===d&&h<16?' · ⏳ แท่งล่าสุดยังเป็นราคาระหว่างวัน (ตลาดสหรัฐยังไม่ปิด)':''}catch(e){return ''}}
+const fmtD=t=>new Date(t).toLocaleDateString('th-TH-u-ca-gregory',{day:'numeric',month:'short',year:'numeric'});
+let busy=false;
+async function load(){
+ if(busy)return;busy=true;$('rf').disabled=true;
+ try{
+  D=AAPL.map(r=>{const p=r.split(' '),k='2026-'+p[0];return bar(k,+p[1],+p[2],+p[3],+p[4],+p[5]*1e6,fxAt(k))});
+  let msg='ข้อมูลฝัง '+D.length+' วันทำการ ถึง '+fmtD(D[D.length-1].t)+' · ใส่คีย์ Twelve Data ด้านบนเพื่อดึงข้อมูลสด';
+  const key=getKey();
+  if(key){try{
+    const [a,f]=await Promise.all([tdRest('AAPL',300,key),tdRest('USD/THB',330,key)]);
+    const bars=fromLive(a,f);if(bars.length<30)throw {message:'ข้อมูลน้อยเกินไป'};
+    D=bars;msg='✅ Twelve Data '+D.length+' วันทำการ ล่าสุด '+fmtD(D[D.length-1].t)+' · อัปเดต '+new Date().toLocaleTimeString('th-TH')+openNote(day(D[D.length-1].t))}
+   catch(e){const c=e&&e.code,m=(e&&e.message)||'ไม่ทราบสาเหตุ';
+    msg+=' · ⚠ '+(c==401||c==403?'คีย์ไม่ถูกต้องหรือไม่มีสิทธิ์':c==429?'เกินโควตาของ Twelve Data รอสักครู่แล้วกดรีเฟรช':'ดึงข้อมูลสดไม่ได้ ('+String(m).slice(0,100)+')')}}
+  $('src').textContent=msg+' · เลื่อนกราฟซ้าย-ขวาเพื่อดูครบทุกวัน';analyze()
+ }finally{busy=false;$('rf').disabled=false}}
+
+const ema=(a,n)=>{const k=2/(n+1);let e=a[0];return a.map((x,i)=>i?(e=x*k+e*(1-k)):e)};
+function rsi(c,n=14){const r=Array(c.length).fill(null);let g=0,l=0;for(let i=1;i<=n;i++){const d=c[i]-c[i-1];d>0?g+=d:l-=d}g/=n;l/=n;r[n]=100-100/(1+g/(l||1e-9));for(let i=n+1;i<c.length;i++){const d=c[i]-c[i-1];g=(g*(n-1)+Math.max(d,0))/n;l=(l*(n-1)+Math.max(-d,0))/n;r[i]=100-100/(1+g/(l||1e-9))}return r}
+function swings(a,k=4){const hi=[],lo=[];for(let i=k;i<a.length-k;i++){let H=1,L=1;for(let j=1;j<=k;j++){if(a[i].h<=a[i-j].h||a[i].h<=a[i+j].h)H=0;if(a[i].l>=a[i-j].l||a[i].l>=a[i+j].l)L=0}if(H)hi.push(i);if(L)lo.push(i)}return{hi,lo}}
+function findDiv(w,R,sw){let out=null;
+ const chk=(idx,bull)=>{for(let k=idx.length-1;k>0;k--){const a=idx[k-1],b=idx[k];if(R[a]==null||R[b]==null)continue;
+  if(bull?(w[b].l<w[a].l&&R[b]>R[a]):(w[b].h>w[a].h&&R[b]<R[a])){if(!out||b>out.b)out={t:bull?'bullish':'bearish',a,b};break}}};
+ chk(sw.lo,true);chk(sw.hi,false);if(out&&out.b<w.length-45)out=null;return out}
+function fibPair(w,sw,price){let best=null;
+ for(const i of sw.hi)for(const j of sw.lo){const d=Math.abs(i-j),m=Math.max(i,j);if(d>45||w[i].h-w[j].l<price*.04)continue;if(!best||m>best.m||(m==best.m&&d<best.d))best={i,j,m,d}}
+ if(!best){let i=0,j=0;w.forEach((d,k)=>{if(d.h>w[i].h)i=k;if(d.l<w[j].l)j=k});best={i,j}}return best}
+const f2=x=>x.toLocaleString('th-TH',{maximumFractionDigits:2,minimumFractionDigits:2});
+const f0=x=>x.toLocaleString('th-TH',{maximumFractionDigits:0});
+
+// ---------- drawing helpers ----------
+function base(id,ph,w,pn=0,extra=[]){
+ const c=$(id),dpr=devicePixelRatio||1;c.style.width=Math.max((c.parentElement&&c.parentElement.clientWidth-28)||900,w.length*16+70)+'px';const W=c.clientWidth,H=ph+(pn?pn+18:0);
+ c.width=W*dpr;c.height=H*dpr;c.style.height=H+'px';const g=c.getContext('2d');g.scale(dpr,dpr);
+ const L=8,pw=W-L-62,n=w.length,step=pw/n,X=i=>L+step*(i+.5),bh=ph-18;
+ const hi=Math.max(...w.map(d=>d.h),...extra),lo=Math.min(...w.map(d=>d.l),...extra),pad=(hi-lo)*.05;
+ const Y=p=>bh-(p-lo+pad)/(hi-lo+2*pad)*bh;
+ g.font='11px sans-serif';g.textBaseline='middle';
+ for(let k=0;k<=4;k++){const p=lo+(hi-lo)*k/4,y=Y(p);g.strokeStyle='#e3e8ed';g.beginPath();g.moveTo(L,y);g.lineTo(L+pw,y);g.stroke();g.fillStyle='#5d6b78';g.fillText(f0(p),L+pw+4,y)}
+ for(let i=0;i<n;i+=3){g.fillStyle='#5d6b78';g.fillText(new Date(w[i].t).toLocaleDateString('th-TH',{day:'numeric',month:'short'}),X(i),bh+9)}
+ g.fillStyle='#5d6b78';g.fillText('บาท/หุ้น (฿)',L+pw+4,bh+9);
+ w.forEach((d,i)=>{g.strokeStyle=g.fillStyle=d.c>=d.o?'#0f9d6b':'#d64545';g.beginPath();g.moveTo(X(i),Y(d.h));g.lineTo(X(i),Y(d.l));g.stroke();const bw=Math.max(1.5,step*.65);g.fillRect(X(i)-bw/2,Math.min(Y(d.o),Y(d.c)),bw,Math.max(1,Math.abs(Y(d.o)-Y(d.c))))});
+ return{g,X,Y,L,pw,n,ph,bh,step,W,clip:()=>{g.save();g.beginPath();g.rect(L,0,pw,bh);g.clip()},unclip:()=>g.restore()}}
+const ln=(g,pts,col,wd=1.6,dash=[])=>{g.save();g.setLineDash(dash);g.strokeStyle=col;g.lineWidth=wd;g.beginPath();pts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.stroke();g.restore()};
+const hl=(b,p,col,dash=[5,4],x0)=>ln(b.g,[[x0??b.L,b.Y(p)],[b.L+b.pw,b.Y(p)]],col,1.3,dash);
+const txt=(g,t,x,y,col)=>{g.fillStyle=col;g.fillText(t,x,y)};
+function tag(g,t,col,x=14,y=8){g.font='bold 12px sans-serif';const wd=g.measureText(t).width+14;g.fillStyle=col;g.fillRect(x,y,wd,22);g.fillStyle='#fff';g.fillText(t,x+7,y+11);g.font='11px sans-serif'}
+function dot(g,x,y,col){g.fillStyle=col;g.beginPath();g.arc(x,y,4,0,7);g.fill()}
+
+function analyze(){
+ const all=D,cl=all.map(d=>d.c),e20=ema(cl,20),e50=ema(cl,50),e200=ema(cl,200),R=rsi(cl);
+ const m12=ema(cl,12),m26=ema(cl,26),macd=m12.map((x,i)=>x-m26[i]),sig=ema(macd,9),hist=macd.map((x,i)=>x-sig[i]);
+ const s=Math.max(0,all.length-130),w=all.slice(s),n=w.length,last=w[n-1],prev=w[n-2]||last,price=last.c,ch=price-prev.c;
+ const E=[e20,e50,e200].map(e=>e.slice(s)),Rw=R.slice(s),Mw=macd.slice(s),Sw=sig.slice(s),Hw=hist.slice(s);
+ $('px').textContent=f2(price)+' บาท';
+ $('chg').innerHTML=`<span class="${ch>=0?'up':'dn'}">${ch>=0?'▲':'▼'} ${f2(Math.abs(ch))} (${f2(ch/prev.c*100)}%)</span> <span class="mut">AAPL $${f2(last.usd||price/33)} · USD/THB ${f2(last.fx||33)}</span>`;
+ // swings, trendlines
+ const sw=swings(w),lo=sw.lo.slice(-2),hi=sw.hi.slice(-2);
+ const sup=lo.length==2?{i1:lo[0],y1:w[lo[0]].l,m:(w[lo[1]].l-w[lo[0]].l)/(lo[1]-lo[0])}:null;
+ const res=hi.length==2?{i1:hi[0],y1:w[hi[0]].h,m:(w[hi[1]].h-w[hi[0]].h)/(hi[1]-hi[0])}:null;
+ const at=(Ln,i)=>Ln.y1+Ln.m*(i-Ln.i1);
+ let chan=null;if(sup){let mx=-1e18;for(let i=sup.i1;i<n;i++)mx=Math.max(mx,w[i].h-at(sup,i));chan={...sup,y1:sup.y1+mx}}
+ // volume profile
+ const B=24,lowP=Math.min(...w.map(d=>d.l)),hiP=Math.max(...w.map(d=>d.h)),bs=(hiP-lowP)/B,vp=Array(B).fill(0);
+ w.forEach(d=>vp[Math.min(B-1,Math.floor((d.c-lowP)/bs))]+=d.v);
+ const poc=vp.indexOf(Math.max(...vp)),pocP=lowP+bs*(poc+.5);
+ const lv=[...sw.hi.map(i=>w[i].h),...sw.lo.map(i=>w[i].l),pocP];
+ const S1=lv.filter(x=>x<price).sort((a,b)=>b-a)[0]||lowP,R1=lv.filter(x=>x>price).sort((a,b)=>a-b)[0]||hiP;
+ // indicators
+ const div=findDiv(w,Rw,sw),rs=Rw[n-1],mh=Hw[n-1],mp=Hw[n-2],mAbs=Math.max(...Mw.map(Math.abs)),OB=mAbs*.6,mv=Mw[n-1];
+ const mstate=mv>OB?'Overbought (MACD สูงผิดปกติ)':mv<-OB?'Oversold (MACD ต่ำผิดปกติ)':'ปกติ';
+ const supNow=sup?at(sup,n-1):S1,resNow=res?at(res,n-1):R1,techSL=Math.min(S1,supNow)*.99;
+ let tri='ยังไม่พบรูปสามเหลี่ยมชัดเจน';
+ if(sup&&res){if(res.m<0&&sup.m>0)tri='สามเหลี่ยมบีบตัว (Symmetrical) – รอ Breakout';else if(Math.abs(res.m)<price*1e-4&&sup.m>0)tri='สามเหลี่ยมขาขึ้น (Ascending) – มักเบรกขึ้น';else if(Math.abs(sup.m)<price*1e-4&&res.m<0)tri='สามเหลี่ยมขาลง (Descending) – มักเบรกลง';else if(sup.m>0&&res.m>0)tri='ช่อง/ลิ่มขาขึ้น';else if(sup.m<0&&res.m<0)tri='ช่อง/ลิ่มขาลง'}
+ // score
+ let sc=0,why=[];const add=(v,t)=>{sc+=v;why.push((v>0?'＋ ':v<0?'－ ':'• ')+t)};
+ const a20=E[0][n-1],a50=E[1][n-1];
+ add(price>a50?1:-1,price>a50?'ราคาเหนือ EMA50':'ราคาต่ำกว่า EMA50');
+ add(a20>a50?1:-1,a20>a50?'EMA20 > EMA50 (แนวโน้มสั้นขาขึ้น)':'EMA20 < EMA50 (แนวโน้มสั้นขาลง)');
+ add(rs>70?-1:rs<30?1:0,`RSI ${f2(rs)} ${rs>70?'(Overbought)':rs<30?'(Oversold)':'(กลาง)'}`);
+ if(div)add(div.t=='bullish'?1:-1,div.t=='bullish'?'พบ Bullish Divergence':'พบ Bearish Divergence');
+ add(mh>0&&mh>=mp?1:mh<0&&mh<=mp?-1:0,`MACD Histogram ${mh>0?'บวก':'ลบ'} ${mh>mp?'กำลังเพิ่ม':'กำลังลด'}`);
+ add((price-S1)/price<.03?1:(R1-price)/price<.02?-1:0,`ห่างแนวรับ ${f2((price-S1)/price*100)}% / แนวต้าน ${f2((R1-price)/price*100)}%`);
+ let fs_=0;fc.forEach(i=>fs_+=FUND[i][1]);if(fs_)add(Math.max(-2,Math.min(2,fs_)),`ปัจจัย Fundamental ที่เลือก (รวม ${fs_>0?'+':''}${fs_})`);
+ const V=sc>=3?['น่าลงทุน (ทยอยซื้อ)','#dff5ea','#0a6b48']:sc>=1?['เริ่มสนใจ รอจังหวะย่อ','#e6f0fc','#1f5fbf']:sc>=-1?['รอดู (Wait)','#fff4d6','#8a6100']:['ยังไม่น่าลงทุน / ระวัง','#fbe3e3','#a12d2d'];
+ $('verdict').innerHTML=`<span class="verdict" style="background:${V[1]};color:${V[2]}">${V[0]} · คะแนน ${sc}</span>`;
+ $('why').innerHTML='<ul>'+why.map(x=>`<li>${x}</li>`).join('')+'</ul>';
+ // fibonacci (direction follows the prediction)
+ const predUp=sc>0||(sc==0&&price>a50),fp=fibPair(w,sw,price),iH=fp.i,iL=fp.j,FH=w[iH].h,FLo=w[iL].l;
+ const FL=[0,.236,.382,.5,.618,.786,1].map(r=>({r,p:predUp?FH-(FH-FLo)*r:FLo+(FH-FLo)*r}));
+ const tp=price*1.3,sl=price*.85;
+ // texts
+ $('t1').innerHTML=`<p><b>${tri}</b></p><p>เส้นแนวรับ (ต่อ Low 2 จุด) ≈ <b>${f2(supNow)}</b> · เส้นแนวต้าน (ต่อ High 2 จุด) ≈ <b>${f2(resNow)}</b>${chan?` · เส้นขนานบน ≈ <b>${f2(at(chan,n-1))}</b>`:''}</p><ul><li><b>จุดซื้อ:</b> เบรกเหนือเส้นแนวต้านพร้อม Volume เพิ่ม หรือเด้งจากเส้นแนวรับ/เส้นล่างของช่อง</li><li><b>จุดขาย:</b> ชนเส้นขนานบน/แนวต้าน หรือหลุดเส้นแนวรับ</li><li><b>Stop loss:</b> ใต้เส้นแนวรับ ≈ <b>${f2(techSL)}</b> (เส้นประส้มในกราฟ)</li></ul>`;
+ $('t2').innerHTML=`<table><tr><td>แนวต้านใกล้สุด</td><td><b>${f2(R1)}</b></td></tr><tr><td>แนวรับใกล้สุด</td><td><b>${f2(S1)}</b></td></tr><tr><td>POC (ราคาซื้อขายหนาแน่นสุด)</td><td><b>${f2(pocP)}</b></td></tr><tr><td>EMA20 / EMA50 (฿)</td><td>${f2(a20)} / ${f2(a50)}</td></tr></table><p class="mut">ราคาเหนือ POC = แนวรับแข็ง · ต่ำกว่า POC = POC เป็นแนวต้าน · EMA เป็นแนวรับ/ต้านแบบเคลื่อนที่ · แถบขวาคือ Volume Profile</p>`;
+ $('t3').innerHTML=`<p><b>คาดการณ์: ราคา${predUp?'ขึ้น → ลากจากยอด (High) ลงท้องคลื่น (Low)':'ลง → ลากจากท้องคลื่น (Low) ขึ้นยอด (High)'}</b><br>ใช้คู่ยอด–ท้องคลื่นล่าสุดที่อยู่ใกล้กันที่สุด: High ${f2(FH)} · Low ${f2(FLo)}</p><table>${FL.map(x=>`<tr><td>${+(x.r*100).toFixed(1)}%</td><td>${f2(x.p)}</td></tr>`).join('')}</table><p><b>แผนเทรด:</b> เข้า ${f2(price)} · ขายทำกำไร +30% = <b>${f2(tp)}</b> · ตัดขาดทุน −15% = <b>${f2(sl)}</b> · <b>RRR = 30:15 = 2:1</b> (ชนะเกิน 1 ใน 3 ครั้งก็คุ้มทุน)</p><p class="mut">ถ้าใช้ Stop จากกราฟ ${f2(techSL)} (${f2((techSL/price-1)*100)}%) RRR ไป +30% = ${f2(.3/Math.abs(techSL/price-1))}:1 · โซนซื้อที่ดีคือ Fib 0.382–0.618</p>`;
+ const dcol=!div?['#eef1f4','#5d6b78']:div.t=='bullish'?['#dff5ea','#0a6b48']:['#fbe3e3','#a12d2d'];
+ $('t4').innerHTML=`<p><span class="badge" style="background:${dcol[0]};color:${dcol[1]}">${!div?'ไม่พบ Divergence':div.t=='bullish'?'Bullish Divergence':'Bearish Divergence'}</span></p><p>${!div?'ราคากับ RSI ยังเคลื่อนไหวไปในทิศเดียวกัน':div.t=='bullish'?'ราคาทำ Low ต่ำลง แต่ RSI ทำ Low สูงขึ้น → แรงขายอ่อนลง มีโอกาสกลับตัวขึ้น':'ราคาทำ High สูงขึ้น แต่ RSI ทำ High ต่ำลง → แรงซื้ออ่อนลง ระวังกลับตัวลง'}</p><p>RSI(14) ล่าสุด <b>${f2(rs)}</b> ${rs>70?'<span class="dn">Overbought</span>':rs<30?'<span class="up">Oversold</span>':'(โซนกลาง)'}</p><p class="mut">RSI = 100 − 100/(1+RS), RS = ค่าเฉลี่ยวันขึ้น ÷ วันลง 14 วัน (Wilder) · >70 ซื้อมากเกิน · <30 ขายมากเกิน</p>`;
+ $('t5').innerHTML=`<p>MACD ${f2(mv)} · Signal ${f2(Sw[n-1])} · Histogram ${f2(mh)}</p><p>สถานะ: <b>${mstate}</b> (เกณฑ์ ±${f2(OB)} = 60% ของค่าสูงสุดในช่วงกราฟ) · ${mv>Sw[n-1]?'MACD อยู่เหนือ Signal = สัญญาณซื้อ':'MACD อยู่ใต้ Signal = สัญญาณขาย'}</p><p class="mut">MACD = EMA12 − EMA26, Signal = EMA9 ของ MACD</p>`;
+
+ // ---------- charts ----------
+ base('c0',320,w);
+ {const b=base('c1',340,w),{g,X,Y}=b;b.clip();
+  const seg=(Ln,col,dash,lab)=>{if(!Ln)return;ln(g,[[X(Ln.i1),Y(at(Ln,Ln.i1))],[X(n-1)+8,Y(at(Ln,n-1)+Ln.m*8)]],col,2.4,dash);txt(g,lab,X(Ln.i1)+4,Y(at(Ln,Ln.i1))+(lab=='แนวรับ'?14:-10),col)};
+  seg(sup,'#0a6b48',[],'แนวรับ');seg(res,'#a12d2d',[],'แนวต้าน');seg(chan,'#1f5fbf',[8,4],'เส้นขนาน');
+  hl(b,techSL,'#e07b00',[3,3]);txt(g,'Stop loss '+f0(techSL),b.L+6,Y(techSL)-8,'#e07b00');b.unclip();
+  tag(g,tri,'#1f5fbf')}
+ {const b=base('c2',380,w,0,[]),{g,X,Y}=b;b.clip();
+  const mx=Math.max(...vp);vp.forEach((v,i)=>{const y1=Y(lowP+bs*(i+1)),y2=Y(lowP+bs*i);g.fillStyle=i==poc?'rgba(212,160,23,.55)':'rgba(31,95,191,.18)';g.fillRect(b.L+b.pw-(v/mx)*b.pw*.22,y1,(v/mx)*b.pw*.22,y2-y1-1)});
+  [[E[0],'#2f80ed'],[E[1],'#f2994a']].forEach(([e,c])=>ln(g,e.map((v,i)=>[X(i),Y(v)]),c,1.8));
+  hl(b,R1,'#d64545');hl(b,S1,'#0f9d6b');hl(b,pocP,'#d4a017',[2,3]);
+  txt(g,'แนวต้าน '+f0(R1),b.L+6,Y(R1)-8,'#d64545');txt(g,'แนวรับ '+f0(S1),b.L+6,Y(S1)+10,'#0f9d6b');txt(g,'POC '+f0(pocP),b.L+6,Y(pocP)-8,'#a07800');b.unclip();
+  tag(g,'EMA20','#2f80ed',b.W-62-128,8);tag(g,'EMA50','#f2994a',b.W-62-66,8)}
+ {const b=base('c3',400,w),{g,X,Y}=b;b.clip();
+  const x0=Math.min(iH,iL);g.fillStyle='rgba(120,90,160,.10)';g.fillRect(X(x0),Y(FL[2].p),b.L+b.pw-X(x0),Y(FL[4].p)-Y(FL[2].p));
+  FL.forEach(f=>{ln(g,[[X(x0),Y(f.p)],[b.L+b.pw,Y(f.p)]],'rgba(120,90,160,.8)',1,[3,3]);txt(g,`${f.r} (${f0(f.p)})`,b.L+b.pw-92,Y(f.p)-7,'#6a4b98')});
+  const pA=predUp?[iH,FH]:[iL,FLo],pB=predUp?[iL,FLo]:[iH,FH];
+  ln(g,[[X(pA[0]),Y(pA[1])],[X(pB[0]),Y(pB[1])]],'#6a4b98',2.6);dot(g,X(pA[0]),Y(pA[1]),'#6a4b98');dot(g,X(pB[0]),Y(pB[1]),'#6a4b98');b.unclip();
+  tag(g,predUp?'คาดขึ้น: ลากยอด → ท้องคลื่น':'คาดลง: ลากท้องคลื่น → ยอด',predUp?'#0a6b48':'#a12d2d')}
+ {const b=base('c4',230,w,150),{g,X,Y}=b,top=230+18,ph=150,Yr=v=>top+ph-v/100*ph;
+  g.fillStyle='rgba(214,69,69,.07)';g.fillRect(b.L,Yr(100),b.pw,Yr(70)-Yr(100));g.fillStyle='rgba(15,157,107,.07)';g.fillRect(b.L,Yr(30),b.pw,Yr(0)-Yr(30));
+  [30,70].forEach(v=>{ln(g,[[b.L,Yr(v)],[b.L+b.pw,Yr(v)]],'#c9d2da',1);txt(g,v,b.L+b.pw+4,Yr(v),'#5d6b78')});txt(g,'RSI 14',b.L+4,top+8,'#5d6b78');
+  ln(g,Rw.map((v,i)=>v==null?null:[X(i),Yr(v)]).filter(Boolean),'#14222e',1.6);
+  if(div){const c=div.t=='bullish'?'#0f9d6b':'#d64545',k=div.t=='bullish'?'l':'h';
+   ln(g,[[X(div.a),Y(w[div.a][k])],[X(div.b),Y(w[div.b][k])]],c,2.8);ln(g,[[X(div.a),Yr(Rw[div.a])],[X(div.b),Yr(Rw[div.b])]],c,2.8);
+   [div.a,div.b].forEach(i=>{dot(g,X(i),Y(w[i][k]),c);dot(g,X(i),Yr(Rw[i]),c)});
+   tag(g,div.t=='bullish'?'Bullish Divergence':'Bearish Divergence',c)}else tag(g,'ไม่พบ Divergence','#7a8794')}
+ {const b=base('c5',230,w,150),{g,X,Y}=b,top=230+18,ph=150,mx=Math.max(...Mw.map(Math.abs),...Hw.map(Math.abs)),Ym=v=>top+ph/2-v/mx*ph/2;
+  [OB,-OB].forEach(v=>ln(g,[[b.L,Ym(v)],[b.L+b.pw,Ym(v)]],'#d64545',1,[3,3]));txt(g,'Overbought',b.L+b.pw+4,Ym(OB),'#d64545');txt(g,'Oversold',b.L+b.pw+4,Ym(-OB),'#d64545');
+  ln(g,[[b.L,Ym(0)],[b.L+b.pw,Ym(0)]],'#c9d2da',1);txt(g,'MACD',b.L+4,top+8,'#5d6b78');
+  Hw.forEach((h,i)=>{g.fillStyle=h>=0?'rgba(15,157,107,.5)':'rgba(214,69,69,.5)';const bw=Math.max(1,b.step*.6);g.fillRect(X(i)-bw/2,Math.min(Ym(0),Ym(h)),bw,Math.abs(Ym(h)-Ym(0)))});
+  ln(g,Mw.map((v,i)=>[X(i),Ym(v)]),'#2f80ed',1.6);ln(g,Sw.map((v,i)=>[X(i),Ym(v)]),'#f2994a',1.6);
+  tag(g,mstate,mv>OB?'#a12d2d':mv<-OB?'#0a6b48':'#7a8794')}
+}
+$('key').value=getKey();
+$('sk').onclick=()=>{try{localStorage.setItem('tdkey',$('key').value.trim())}catch(e){}load()};
+$('rf').onclick=load;load();setInterval(load,600000);addEventListener('resize',()=>D&&analyze());
+function tv(id,sym,h){try{new TradingView.widget({container_id:id,symbol:sym,interval:'D',timezone:'Asia/Bangkok',theme:'light',style:'1',locale:'th_TH',width:'100%',height:h,allow_symbol_change:true,hide_side_toolbar:false,studies:['MASimple@tv-basicstudies']})}catch(e){$(id).textContent='โหลด TradingView ไม่ได้ (เครือข่ายหรือบล็อกสคริปต์)'}}
+window.addEventListener('load',()=>{tv('tv1','NASDAQ:AAPL',460);tv('tv2','FX_IDC:USDTHB',380)});
+</script></body></html>
